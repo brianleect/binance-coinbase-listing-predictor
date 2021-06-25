@@ -30,12 +30,16 @@ def getTop1000(): # Top 1000
 
     coins = []
     symbols = []
-
+    stablecoins = ['TUSD','BUSD','PAX','UST','LUSD','HUSD'] 
+    exchange_tokens = ['BNB','OKB','CRO','HT','KCS','GT']
+    asset_variations = ['HBTC','STETH']
+    ignore_list = stablecoins + exchange_tokens + asset_variations
     # Add symbol column and edit coin column
     for index, row in top_1000.iterrows():
         try:
             split_word = row['Coin'].split()
             symbol = split_word[-1] # Gets symbol
+
             name = " ".join([word for word in split_word if word != symbol]) # Removes symbol from name and joins string
             if name == "": name = symbol # For edge cases like XRP XRP XRP
             coins.append(name)
@@ -46,7 +50,9 @@ def getTop1000(): # Top 1000
 
     top_1000['Coin'] = coins # Replaces coin column with cleaned name # We take top 2800 due to '#' not being labelled after
     top_1000.insert(top_1000.columns.get_loc('Coin'), 'Symbol', symbols) # Insert symbol column after coin
-    
+    print("Length before:",len(top_1000))
+    top_1000 = top_1000.query('Symbol not in @ignore_list')
+
     return top_1000
 
 def getBinanceSymbols():
