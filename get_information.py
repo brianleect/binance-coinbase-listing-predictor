@@ -33,9 +33,15 @@ def getTop1000(): # Top 1000
 
     # Add symbol column and edit coin column
     for i in range(1,len(top_1000['Coin'])+1): # 
-        split_word = top_1000.loc[top_1000['#']==i]['Coin'][(i-1)%100].split()
-        symbol = split_word[-1] # Gets symbol
-        print(i,split_word)
+        try:
+            split_word = top_1000.loc[top_1000['#']==i].reset_index()['Coin'][0].split()
+            symbol = split_word[-1] # Gets symbol
+            #print(i,split_word)
+        except Exception as e: # Shitty fix used for now
+            print("Key error:",e)
+            print(i, top_1000.loc[top_1000['#']==i]['Coin'])
+            
+        
         name = " ".join([word for word in split_word if word != symbol]) # Removes symbol from name and joins string
         if name == "": name = symbol # For edge cases like XRP XRP XRP
         coins.append(name)
