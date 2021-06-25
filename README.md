@@ -10,3 +10,4 @@ Attempts to predict possible future listings for binance and coinbase based on d
 ## Todo
 1. Implement telegram bot interaction
 2. Implement pandas dataframe display capability
+3. Add coinbase custody assets scraping as well.
