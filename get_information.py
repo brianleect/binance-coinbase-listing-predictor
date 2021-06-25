@@ -26,7 +26,7 @@ def getTop1000(): # Top 1000
     all_coins = pd.concat(tables)
     all_coins = all_coins.drop(columns=['Unnamed: 0','Last 7 Days']) # Remove unnecessary columns
 
-    top_1000 = all_coins[0:2800]
+    top_1000 = all_coins[0:1000]
 
     coins = []
     symbols = []
@@ -89,3 +89,24 @@ def getCoinbaseSymbols():
     print("Coinbase has a total of",len(coinbase_symbols),"unique symbols")
 
     return coinbase_symbols
+
+def getCoinbaseCustodySymbols():
+    try:
+        url = 'https://api.custody.coinbase.com/api/marketing/currencies'
+        response = get(url).json() 
+        response
+
+        print("No. of Coinbase Custody Symbols:",len(response))
+        symbols = []
+        for asset in response:
+            symbols.append(asset['symbol'].upper())
+        
+        return symbols
+    except Exception as e:
+        print("Error",e)
+        print("Getting Coinbase Custody Symbols failed")
+        return 0
+        
+
+
+    
