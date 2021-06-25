@@ -12,7 +12,7 @@ def getTop1000(): # Top 1000
 
     # In theory we could extract all 8000 coins by extending page to 81 update this accordingly works
 
-    last_page=30 # Update this accordingly
+    last_page=11 # Update this accordingly
 
     for page in range(1,last_page+1): # Gets top 1000 coins
         response = get(url+str(page)) # Query coingecko for table. Note that each page stores 100 symbols
@@ -23,29 +23,29 @@ def getTop1000(): # Top 1000
         sleep(0.5)
         print("We are at page",page,"/",last_page)
 
-
     all_coins = pd.concat(tables)
     all_coins = all_coins.drop(columns=['Unnamed: 0','Last 7 Days']) # Remove unnecessary columns
 
-    top_2800 = all_coins[0:2800]
+    top_1000 = all_coins[0:2800]
 
     coins = []
     symbols = []
 
     # Add symbol column and edit coin column
-    for i in range(1,len(top_2800['Coin'])+1): # 
-        split_word = top_2800.loc[top_2800['#']==i]['Coin'][(i-1)%100].split()
+    for i in range(1,len(top_1000['Coin'])+1): # 
+        split_word = top_1000.loc[top_1000['#']==i]['Coin'][(i-1)%100].split()
         symbol = split_word[-1] # Gets symbol
+        print(i,split_word)
         name = " ".join([word for word in split_word if word != symbol]) # Removes symbol from name and joins string
         if name == "": name = symbol # For edge cases like XRP XRP XRP
         coins.append(name)
         symbols.append(symbol)
         #print("Count:",i)
 
-    top_2800['Coin'] = coins # Replaces coin column with cleaned name # We take top 2800 due to '#' not being labelled after
-    top_2800.insert(top_2800.columns.get_loc('Coin'), 'Symbol', symbols) # Insert symbol column after coin
+    top_1000['Coin'] = coins # Replaces coin column with cleaned name # We take top 2800 due to '#' not being labelled after
+    top_1000.insert(top_1000.columns.get_loc('Coin'), 'Symbol', symbols) # Insert symbol column after coin
     
-    return top_2800[0:1000]
+    return top_1000
 
 def getBinanceSymbols():
     url = "https://api.binance.com/api/v3/exchangeInfo" # Gets all exchange info from binance
