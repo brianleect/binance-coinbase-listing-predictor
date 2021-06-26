@@ -72,7 +72,7 @@ def updateAll():
     return
 
 while True:
-    action = input('Display what variable? ')
+    action = input('Display what variable? \n 1: Top 1000\n 2: Binance Symbols \n 3: CB Symbols \n 4: Binance predictions \n 5: CB Predictions\n 6: Exit Program\n')
     if action =='1': print(top_1000)
     elif action == '2': print(binance_symbols)
     elif action == '3': print(coinbase_symbols)
