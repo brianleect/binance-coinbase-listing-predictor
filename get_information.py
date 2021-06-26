@@ -2,6 +2,7 @@ from bs4 import BeautifulSoup
 from requests import get
 from time import sleep
 import pandas as pd
+from ignore_list import ignore_list
 
 def getTop1000(): # Top 1000
     
@@ -23,7 +24,7 @@ def getTop1000(): # Top 1000
             df = pd.read_html(str(table))[0]
             tables.append(df)
             sleep(0.5)
-            print("We are at page",page,"/",last_page)
+            print("[Top 1000] Extracting page",page,"/",last_page)
 
         all_coins = pd.concat(tables)
         all_coins = all_coins.drop(columns=['Unnamed: 0','Last 7 Days']) # Remove unnecessary columns
@@ -32,10 +33,6 @@ def getTop1000(): # Top 1000
 
         coins = []
         symbols = []
-        stablecoins = ['TUSD','BUSD','PAX','UST','LUSD','HUSD'] 
-        exchange_tokens = ['BNB','OKB','CRO','HT','KCS','GT']
-        asset_variations = ['HBTC','STETH']
-        ignore_list = stablecoins + exchange_tokens + asset_variations
         # Add symbol column and edit coin column
         for index, row in top_1000.iterrows():
             try:
@@ -52,7 +49,6 @@ def getTop1000(): # Top 1000
 
         top_1000['Coin'] = coins # Replaces coin column with cleaned name # We take top 2800 due to '#' not being labelled after
         top_1000.insert(top_1000.columns.get_loc('Coin'), 'Symbol', symbols) # Insert symbol column after coin
-        print("Length before:",len(top_1000))
         top_1000 = top_1000.query('Symbol not in @ignore_list')
 
         return top_1000
