@@ -1,6 +1,8 @@
 # listing-predictor
 Attempts to predict possible future listings for binance and coinbase based on data from top 1000 coins.
 
+Telegram Demo: https://t.me/coinbase_binance_predict_listing
+
 ![image](https://user-images.githubusercontent.com/63389110/127801749-bf2957d5-7a72-44af-a2a0-81a1524de40c.png)
 
 
@@ -21,5 +23,5 @@ Note: For display of symbols if it's too large it will not be fully visible. Try
 ## Implementations / Todos
 ~~1. Implement telegram bot interaction~~
 ~~2. Implement pandas dataframe display capability~~
-3. Customizable interval implementation (Host on VPS)
+~~3. Customizable interval implementation (Host on VPS)
 
