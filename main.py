@@ -2,6 +2,26 @@ from time import sleep
 import pandas as pd
 from get_information import getTop1000, getBinanceSymbols, getCoinbaseSymbols, getCoinbaseCustodySymbols
 import datetime
+from params import SEND_TELE ,VIEW_NUM, token, chat_id, SEND_TELEGRAM_FAIL_INTERVAL
+import telegram as telegram
+from tabulate import tabulate
+
+try:
+    bot = telegram.Bot(token=token)
+except Exception as e:
+    print("Error initializing telegram bot")
+    print(e)
+    quit()
+
+def send_message(message):
+    while True:
+        try:
+            bot.send_message(chat_id=chat_id,text=message)
+            break
+        except Exception as e:
+            print("Error:",e)
+            print("Retrying to send tele message in",SEND_TELEGRAM_FAIL_INTERVAL,"s")
+            sleep(SEND_TELEGRAM_FAIL_INTERVAL)
 
 top_1000 = getTop1000()
 binance_symbols = getBinanceSymbols()
@@ -11,71 +31,52 @@ last_updated = datetime.datetime.now()
 
 
 def predictCoinbase():
-    in_binance_not_coinbase = [symbol for symbol in binance_symbols if symbol not in coinbase_symbols]
-    print("We have",len(in_binance_not_coinbase),"tokens in binance but NOT IN coinbase")
-
-    df_ibncb = top_1000.query('Symbol in @in_binance_not_coinbase') # Finds symbols in binance but not coinbase
-    view_num = int(input("How many symbols do you wish to view? "))
-    filtered = df_ibncb[0:view_num]
     
-    print(filtered)
-    print('-----')
-    top_1000_not_cb = top_1000.query('Symbol not in @coinbase_symbols') # Top 1000 filter against CB symbols
-    print("We have",len(top_1000_not_cb),"tokens in top 1000 but NOT IN coinbase")
-    view_num = int(input("How many symbols do you wish to view? "))
-    filtered = top_1000_not_cb[0:view_num]
-    print(filtered)
-
-    print('--------')
+    msg1 = ''
     in_cbc_not_cb = [symbol for symbol in cbc_symbols if symbol not in coinbase_symbols] # In CB custody but not CB
-    print("We have",len(in_cbc_not_cb),"symbols in CB Custody but not CB")
     df_cbc_cb = top_1000.query('Symbol in @in_cbc_not_cb')
-    view_num = int(input("How many symbols do you wish to view? "))
-    filtered = df_cbc_cb[0:view_num]
-    print(filtered)
+    filtered = df_cbc_cb[0:VIEW_NUM].drop(columns=['Coin','24h Volume','Mkt Cap'])
+    msg1 += "We have "+str(len(in_cbc_not_cb))+" symbols in CB Custody but not CB\n\n"
+    msg1 += tabulate(filtered,tablefmt="pipe", headers="keys", showindex=False) + '\n ---------------------------------------------------------------------------------\n\n'
+    
+    msg2 = ''
+    in_binance_not_coinbase = [symbol for symbol in binance_symbols if symbol not in coinbase_symbols]
+    df_ibncb = top_1000.query('Symbol in @in_binance_not_coinbase') # Finds symbols in binance but not coinbase
+    filtered = df_ibncb[0:VIEW_NUM].drop(columns=['Coin','24h Volume','Mkt Cap'])
+    msg2 += "We have "+str(len(in_binance_not_coinbase))+" tokens in binance but NOT IN coinbase\n\n"
+    msg2 += tabulate(filtered,tablefmt="pipe", headers="keys", showindex=False) + '\n ---------------------------------------------------------------------------------\n\n'
+    
+    msg3 = ''
+    top_1000_not_cb = top_1000.query('Symbol not in @coinbase_symbols') # Top 1000 filter against CB symbols
+    filtered = top_1000_not_cb[0:VIEW_NUM].drop(columns=['Coin','24h Volume','Mkt Cap'])
+    msg3 += "We have "+str(len(top_1000_not_cb))+" tokens in top 1000 but NOT IN coinbase\n\n"
+    msg3 += tabulate(filtered,tablefmt="pipe", headers="keys", showindex=False) + '\n ---------------------------------------------------------------------------------\n\n'
+
+    if SEND_TELE:
+        send_message(msg1)
+        send_message(msg2)
+        send_message(msg3)
+    else:
+        print(msg1,'\n',msg2,'\n',msg3)
 
     return
-
-
-    # Add in CB custody but not in CB!! (Quite impt?)
-    # Need to figure scraping javascript site
-
-    return 
 
 def predictBinance():
+    msg = ''
     in_coinbase_not_binance = [symbol for symbol in coinbase_symbols if symbol not in binance_symbols]
-    print("We have",len(in_coinbase_not_binance),"tokens in coinbase but NOT IN binance")
+    df_icbnb = top_1000.query('Symbol in @in_coinbase_not_binance').drop(columns=['Coin','24h Volume','Mkt Cap'])
+    msg += "We have "+str(len(in_coinbase_not_binance))+" tokens in coinbase but NOT IN binance\n\n"
+    msg+= tabulate(df_icbnb,tablefmt="pipe", headers="keys", showindex=False) + '\n ---------------------------------------------------------------------------------\n\n'
 
-    df_icbnb = top_1000.query('Symbol in @in_coinbase_not_binance')
-    print(df_icbnb)
-    print('-------')
     top_1000_not_binance = top_1000.query('Symbol not in @binance_symbols') # Usage of query to get non-listed symbols
-    print("We have",len(top_1000_not_binance),"tokens in top 1000 but NOT IN binance")
+    filtered = top_1000_not_binance[0:VIEW_NUM].drop(columns=['Coin','24h Volume','Mkt Cap'])
+    msg += "We have "+str(len(top_1000_not_binance))+" tokens in top 1000 but NOT IN binance\n\n"
+    msg += tabulate(filtered,tablefmt="pipe", headers="keys", showindex=False) + '\n ---------------------------------------------------------------------------------\n\n'
 
-    view_num = int(input("How many symbols do you wish to view? "))
-    filtered = top_1000_not_binance[0:view_num]
-    print(filtered)
+    if SEND_TELE: send_message(msg)
+    else: print(msg)
 
     return
 
-def updateAll():
-    global top_1000
-    global binance_symbols
-    global coinbase_symbols
-    global last_updated
-    
-    top_1000 = getTop1000()
-    binance_symbols = getBinanceSymbols()
-    coinbase_symbols = getCoinbaseSymbols()
-    last_updated = datetime.datetime.now()
-    print("Successfully updated all")
-    return
-
-while True:
-    action = input('Display what variable? \n 1: Top 1000\n 2: Binance Symbols \n 3: CB Symbols \n 4: Binance predictions \n 5: CB Predictions\n 6: Exit Program\n')
-    if action =='1': print(top_1000)
-    elif action == '2': print(binance_symbols)
-    elif action == '3': print(coinbase_symbols)
-    elif action == '4': predictBinance()
-    elif action == '5': predictCoinbase()
-    else: break
+predictCoinbase()
+predictBinance()
