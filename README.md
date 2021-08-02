@@ -23,5 +23,5 @@ Note: For display of symbols if it's too large it will not be fully visible. Try
 ## Implementations / Todos
 ~~1. Implement telegram bot interaction~~
 ~~2. Implement pandas dataframe display capability~~
-~~3. Customizable interval implementation (Host on VPS)
+~~3. Customizable interval implementation (Host on VPS)~~
 
