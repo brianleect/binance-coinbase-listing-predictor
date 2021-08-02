@@ -2,9 +2,11 @@ from time import sleep
 import pandas as pd
 from get_information import getTop1000, getBinanceSymbols, getCoinbaseSymbols, getCoinbaseCustodySymbols
 import datetime
-from params import SEND_TELE ,VIEW_NUM, token, chat_id, SEND_TELEGRAM_FAIL_INTERVAL
+import time
+from params import SEND_TELE ,VIEW_NUM, token, chat_id, SEND_TELEGRAM_FAIL_INTERVAL, SEND_INTERVAL
 import telegram as telegram
 from tabulate import tabulate
+from helper_functions import durationToSeconds
 
 try:
     bot = telegram.Bot(token=token)
@@ -22,13 +24,6 @@ def send_message(message):
             print("Error:",e)
             print("Retrying to send tele message in",SEND_TELEGRAM_FAIL_INTERVAL,"s")
             sleep(SEND_TELEGRAM_FAIL_INTERVAL)
-
-top_1000 = getTop1000()
-binance_symbols = getBinanceSymbols()
-coinbase_symbols = getCoinbaseSymbols()
-cbc_symbols = getCoinbaseCustodySymbols()
-last_updated = datetime.datetime.now()
-
 
 def predictCoinbase():
     
@@ -78,5 +73,43 @@ def predictBinance():
 
     return
 
+def updateAll():
+    global top_1000
+    global binance_symbols
+    global coinbase_symbols
+    global cbc_symbols
+    global start_extract
+    global last_updated
+    global extract_time
+    
+    start_extract = time.time()
+    top_1000 = getTop1000()
+    binance_symbols = getBinanceSymbols()
+    coinbase_symbols = getCoinbaseSymbols()
+    cbc_symbols = getCoinbaseCustodySymbols()
+    last_updated = time.time()
+    print("Successfully updated all")
+    return
+
+
+top_1000 = binance_symbols = coinbase_symbols = cbc_symbols = last_updated = extract_time = start_extract = 0 # Initialize relevant variables
+
+# Initial send
+updateAll()
 predictCoinbase()
 predictBinance()
+
+SEND_INTERVAL = durationToSeconds(SEND_INTERVAL) # Convert string to seconds for sleep usage
+init_dt = datetime.datetime.now() # Used to determine total time program ran
+
+if SEND_TELE:
+    while True:
+        print("Extract time:",last_updated-start_extract,'/ Time ran:',datetime.datetime.now()-init_dt)
+        while time.time() - last_updated < SEND_INTERVAL:
+            print("Sleeping for:",SEND_INTERVAL-time.time()+last_updated,'seconds')
+            sleep(SEND_INTERVAL-time.time()+last_updated) # Sleeps for the remainder of 1s
+            pass # Loop until 1s has passed to getPrices again
+        
+        updateAll()
+        predictCoinbase()
+        predictBinance()
