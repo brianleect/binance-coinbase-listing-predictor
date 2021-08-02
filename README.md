@@ -1,6 +1,9 @@
 # listing-predictor
 Attempts to predict possible future listings for binance and coinbase based on data from top 1000 coins.
 
+![image](https://user-images.githubusercontent.com/63389110/127801749-bf2957d5-7a72-44af-a2a0-81a1524de40c.png)
+
+
 ## Usage
 
 1. In command line run ```pip install -r requirements.txt```
@@ -15,6 +18,8 @@ Note: For display of symbols if it's too large it will not be fully visible. Try
 3. Coinbase API (Symbol information)
 4. Coinbase Custody API (Symbol information)
 
-## Todo
-1. Implement telegram bot interaction
-2. Implement pandas dataframe display capability
+## Implementations / Todos
+~~1. Implement telegram bot interaction~~
+~~2. Implement pandas dataframe display capability~~
+3. Customizable interval implementation (Host on VPS)
+
