@@ -20,8 +20,10 @@ Note: For display of symbols if it's too large it will not be fully visible. Try
 3. Coinbase API (Symbol information)
 4. Coinbase Custody API (Symbol information)
 
-## Implementations / Todos
-~~1. Implement telegram bot interaction~~
-~~2. Implement pandas dataframe display capability~~
-~~3. Customizable interval implementation (Host on VPS)~~
+## Implementations
+1. Implement telegram message sending
+2. Implement pandas dataframe display capability (Tabulate)
+3. Customizable interval implementation for sending Tele
 
+## Todos
+1. None atm
