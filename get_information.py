@@ -29,10 +29,7 @@ def getTop1000():  # Top 1000
             print("[Top 1000] Extracting page", page, "/", last_page)
 
         all_coins = pd.concat(tables)
-        all_coins = all_coins.drop(
-            columns=["Unnamed: 0", "Last 7 Days"]
-        )  # Remove unnecessary columns
-
+        all_coins = all_coins.dropna(axis=1, how='all')
         top_1000 = all_coins[0:1000]
 
         coins = []
@@ -53,8 +50,10 @@ def getTop1000():  # Top 1000
             except Exception as e:
                 print("Error occured while adding symbols & coin:", e)
 
-        top_1000["Coin"] = coins  # Replaces coin column with cleaned name # We take top 2800 due to '#' not being labelled after
-        top_1000.insert(top_1000.columns.get_loc("Coin"), "Symbol", symbols)  # Insert symbol column after coin
+        # Replaces coin column with cleaned name # We take top 2800 due to '#' not being labelled after
+        top_1000["Coin"] = coins
+        # Insert symbol column after coin
+        top_1000.insert(top_1000.columns.get_loc("Coin"), "Symbol", symbols)
         top_1000 = top_1000.query("Symbol not in @ignore_list")
 
         return top_1000
@@ -100,7 +99,8 @@ def getBinanceSymbols():
 
 def getCoinbaseSymbols():
     try:
-        url = "https://api.pro.coinbase.com/products"  # Hits CB REST API for all products)
+        # Hits CB REST API for all products)
+        url = "https://api.pro.coinbase.com/products"
         response = get(url).json()
 
         coinbase_symbols = []
