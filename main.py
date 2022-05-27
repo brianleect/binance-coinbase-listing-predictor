@@ -8,6 +8,8 @@ import telegram as telegram
 from tabulate import tabulate
 from helper_functions import durationToSeconds
 
+pd.set_option('display.float_format', '{:.2g}'.format)
+
 try:
     bot = telegram.Bot(token=token)
 except Exception as e:
@@ -60,7 +62,7 @@ def predictBinance():
     msg = ''
     in_coinbase_not_binance = [symbol for symbol in coinbase_symbols if symbol not in binance_symbols]
     df_icbnb = top_1000.query('Symbol in @in_coinbase_not_binance').drop(columns=['Coin','24h Volume','Mkt Cap'])
-    msg += "We have "+str(len(in_coinbase_not_binance))+" tokens in coinbase but NOT IN binance\n\n"
+    msg += "We have "+str(len(in_coinbase_not_binance))+" tokens in coinbase but NOT IN binance\n(If there are missing values its likely shitcoins that arent top 1k)\n\n"
     msg+= tabulate(df_icbnb,tablefmt="pipe", headers="keys", showindex=False) + '\n ---------------------------------------------------------------------------------\n\n'
 
     top_1000_not_binance = top_1000.query('Symbol not in @binance_symbols') # Usage of query to get non-listed symbols
